@@ -41,5 +41,5 @@ class data_converter:
 
 
 if __name__ == '__main__':
-    data_convert = data_convert()
+    data_convert = data_converter()
     data_convert.data_transformation()
