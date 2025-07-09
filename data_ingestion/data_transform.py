@@ -1,8 +1,7 @@
 import pandas as pd
 from langchain_core.documents import Document
 
-
-class data_convert:
+class data_converter:
     def __init__(self):
         print("Data transformation class has initialized")
         
