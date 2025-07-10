@@ -6,6 +6,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+
+from retriever.retrieval import Retriever
+from utils.model_loader import ModelLoader
+from prompt_library.prompt import PROMPT_TEMPLATES
+
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -20,6 +28,30 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
+load_dotenv()
+
+# Create an objects for retriever, prompt and llm
+retriever_obj = Retriever()
+model_loader = ModelLoader()
+
+def invoke_chain(query:str):
+    """
+    Invoke the chain with the given query.
+    """
+
+    retriever = retriever_obj.load_retriever()
+    prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATES["product_bot"])
+    llm = model_loader.load_llm()
+
+    chain = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm 
+        | StrOutputParser()
+    )
+
+    chain.invoke(query)
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """
@@ -27,4 +59,9 @@ async def read_root(request: Request):
     """
     return template.TemplateResponse("chat.html", {"request": request})
 
+@app.post("/get", response_class=HTMLResponse)
+async def chat(msg:str=Form(...)):
 
+    result = invoke.chain(msg)
+    print(f"Response: {result}")
+    return result
