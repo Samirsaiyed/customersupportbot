@@ -4,14 +4,14 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
 from config.config_loader import load_config
 
-class ModelLoder:
+class ModelLoader:
     """
     A utility class to load emnedding model and LLM model
     """
 
     def __init__(self):
         load_dotenv()
-        self.config = _validate_env()
+        self._validate_env()
         self.config = load_config()
 
     def _validate_env(self):
